@@ -3,6 +3,7 @@ package acrt.geometrymanagement.typed
 import acrt.raytracing.typed.PixelHandler
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
+import acrt.photometry.typed.ImageDrawer.Bounds
 import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBoundsBuilder}
  
 object GeometryOrganizerSome {
@@ -35,7 +36,8 @@ object GeometryOrganizerSome {
           context.log.info(s"Cast ray $k to GeometryManagers.")
       }
       case GetBounds(imgDrawer) => {
-        ???
+        //TODO: FIX
+        imgDrawer ! Bounds(0, 2000, 0, 2000)
       }
 
       case RecID(rec, k, id) => {

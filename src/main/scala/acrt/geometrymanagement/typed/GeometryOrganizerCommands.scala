@@ -10,6 +10,6 @@ object GeometryOrganizer {
   case class CastRay(recipient: ActorRef[PixelHandler.IntersectResult], k: Long, r: Ray) extends Command
   case class RecID(recipient: ActorRef[PixelHandler.IntersectResult], k: Long, id: Option[IntersectData]) extends Command
 
-  case class GetBounds(imgDrawer: ActorRef[ImageDrawer.Command])
+  case class GetBounds(imgDrawer: ActorRef[ImageDrawer.Command]) extends Command
 
 }

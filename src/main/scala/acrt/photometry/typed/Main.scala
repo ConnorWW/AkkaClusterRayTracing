@@ -43,7 +43,7 @@ object Main extends App {
   val organizer = system.create(GeometryOrganizerSome(simpleGeom), "GeomOrganizer")
   val imageDrawer = system.create(ImageDrawer(lights, viewLoc, forward, up, img), "ImageDrawer")
 
-  imageDrawer ! ImageDrawer.AcquireBounds
+  imageDrawer ! ImageDrawer.AcquireBounds(organizer)
 
   val frame = new MainFrame {
     title = "AkkaPMR Frame"
