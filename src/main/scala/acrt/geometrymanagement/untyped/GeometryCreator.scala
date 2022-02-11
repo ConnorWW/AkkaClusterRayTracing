@@ -37,3 +37,4 @@ class PhotometryCreator extends GeometryCreator {
     geom
   }
 }
+

@@ -1,12 +1,9 @@
 package acrt.raytracing.typed
 
-import akka.actor.{Actor, Props}
-import swiftvis2.raytrace.{PointLight, Ray, Point, Vect, RTColor}
+import acrt.geometrymanagement.typed.GeometryOrganizer
+import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.{Behaviors, ActorContext}
-import acrt.geometrymanagement.typed.{GeometryOrganizer}
-import swiftvis2.raytrace.Geometry
-import acrt.geometrymanagement.untyped.GeometryOrganizerAll
+import swiftvis2.raytrace._
 
 //UNFINISHED
 
@@ -44,11 +41,15 @@ object ImageDrawer {
   private val start = System.nanoTime()
 
   def apply(lights: List[PointLight], img: rendersim.RTBufferedImage, numRays: Int, geomOrg: ActorRef[GeometryOrganizer.CastRay]): Behavior[ImageWork] = Behaviors.receive { (context, message) => 
+    //only accepts a Start message
     message match {
       case Start(eye, topLeft, right, down) => {
+        //for each pixel
         for (i <- (0 until img.width); j <- (0 until img.height)) {
+          //spawn a pixelHandler
           val pix = context.spawn(PixelHandler(lights, i, j, numRays, context.self), s"PixelHandler$i,$j")
           val aspect = 4
+          //send a ray to the pixelHandler... one per pixel? This isn't photometric?
           (0 until numRays).map(index => {
             pix ! PixelHandler.AddRay(Ray(eye, topLeft + right * (aspect * (i + (if (index > 0) math.random * 0.75 else 0)) / img.width) + down * (j + (if (index > 0) math.random * 0.75 else 0)) / img.height), geomOrg)
           })

@@ -1,11 +1,9 @@
 package acrt.geometrymanagement.typed
 
-import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.{Behaviors, ActorContext}
-import swiftvis2.raytrace.{Geometry, Ray, KDTreeGeometry, Vect, BoxBoundsBuilder, SphereBoundsBuilder, IntersectData}
-import acrt.geometrymanagement.typed
-import GeometryOrganizerAll._
 import acrt.raytracing.typed.PixelHandler
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.Behaviors
+import swiftvis2.raytrace._
 
 object GeometryOrganizerFew {
   import GeometryOrganizer._
@@ -15,11 +13,13 @@ object GeometryOrganizerFew {
   
     val ymin = simpleGeom.minBy(_.boundingSphere.center.y).boundingSphere.center.y
     val ymax = simpleGeom.maxBy(_.boundingSphere.center.y).boundingSphere.center.y
-  
+    //geomSeqs: Map[Int, Seq[Geometry]], groups the geometry based on y location
     val geomSeqs = simpleGeom.groupBy(g => ((g.boundingSphere.center.y - ymin) / (ymax-ymin) * numManagers).toInt min (numManagers - 1))
+    //geoms: Map[Int, KDTreeGeometry[BoundingSphere]], turns each Seq from geomSeqs into a KDTreeGeometry[BoundingSphere]
     val geoms = geomSeqs.map { case (n, gs) => n -> new KDTreeGeometry(gs, builder = SphereBoundsBuilder) }
+    //geomManagers: Map[Int, ActorRef[GeometryManager.CastRay]], spawns a GeometryManager from each kdTree
     val geomManagers = geoms.map { case (n, g) => n -> context.spawn(GeometryManager(g), "GeometryManager" + n) }
-  
+    
     val intersectsMap = collection.mutable.Map[Long, (Ray, Array[(Int, (Double, Vect, Double, Vect))])]()
     
     message match {

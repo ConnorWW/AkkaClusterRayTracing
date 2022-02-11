@@ -1,10 +1,9 @@
 package acrt.geometrymanagement.typed
 
-import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.{Behaviors, ActorContext}
-import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, BoxBoundsBuilder, SphereBoundsBuilder, Ray, Vect}
-import acrt.geometrymanagement.typed
 import acrt.raytracing.typed.PixelHandler
+import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.scaladsl.Behaviors
+import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBoundsBuilder}
  
 object GeometryOrganizerSome {
   import GeometryOrganizer._
@@ -17,7 +16,8 @@ object GeometryOrganizerSome {
   
     val geomSeqs = simpleGeom.groupBy(g => ((g.boundingSphere.center.y - ymin) / (ymax-ymin) * numTotalManagers).toInt min (numTotalManagers - 1))
     val geoms = geomSeqs.map { case (n, gs) => n -> new KDTreeGeometry(gs, builder = SphereBoundsBuilder) }
-    val geomManagers = geoms.map { case (n, g) => n -> context.spawn(GeometryManager(g), "GeometryManager" + n) }
+    val geomManagers: Map[Int, ActorRef[GeometryManager.CastRay]] = geoms.map { case (n, g) => n -> context.spawn(GeometryManager(g), "GeometryManager" + n) }
+
 
     val buffMap = collection.mutable.Map[Long, collection.mutable.ArrayBuffer[Option[IntersectData]]]() 
     val numManagersMap = collection.mutable.Map[Long, Int]()
@@ -33,6 +33,9 @@ object GeometryOrganizerSome {
             geomManagers(i._1) ! GeometryManager.CastRay(rec, k, r, context.self)
         }
           context.log.info(s"Cast ray $k to GeometryManagers.")
+      }
+      case GetBounds(imgDrawer) => {
+        ???
       }
 
       case RecID(rec, k, id) => {

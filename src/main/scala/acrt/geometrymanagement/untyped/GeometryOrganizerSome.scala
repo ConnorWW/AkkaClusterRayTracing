@@ -1,11 +1,9 @@
 package acrt.geometrymanagement.untyped
 
-import akka.actor.{Props, Actor, ActorRef}
-import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, BoxBoundsBuilder, SphereBoundsBuilder}
-import acrt.raytracing.untyped.PixelHandler
 import acrt.photometry.untyped.ImageDrawer
-import swiftvis2.raytrace.Box
-import swiftvis2.raytrace.BoundingBox
+import acrt.raytracing.untyped.PixelHandler
+import akka.actor.Props
+import swiftvis2.raytrace.{BoundingBox, Box, Geometry, IntersectData}
 
 class GeometryOrganizerSome(val numFiles: Int, val gc: GeometryCreator) extends GeometryOrganizer {
   import GeometryOrganizer._
@@ -41,9 +39,8 @@ class GeometryOrganizerSome(val numFiles: Int, val gc: GeometryCreator) extends 
   val offsetsMap = giveOffsets(cartAndRadNumbers, offsets)
   private var managerBounds = List[Box]()
   private def totalBounds: Box = managerBounds.reduce(BoundingBox.mutualBox(_,_))
-
   val managers = for(n <- cartAndRadNumbers) yield {
-    val data = gc(n, offsetsMap(n))
+    val data: Geometry = gc(n, offsetsMap(n))
     managerBounds =  data.boundingBox :: managerBounds
     (context.actorOf(Props(new GeometryManager(data))) -> data)
   }
