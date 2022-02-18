@@ -39,7 +39,7 @@ object ImageDrawer {
 
           for(c <- 1 to threads; light <- sources) {
             val id = light.numPhotons + scala.util.Random.nextLong()
-            val child: ActorRef[PhotonCreator.PhotonCreatorCommand] = context.spawn(PhotonCreator(xmin, xmax, ymin, ymax, light, viewLoc, forward, up, img), s"PhotonSender$c,$id")
+            val child: ActorRef[PhotonCreator.PhotonCreatorCommand] = context.spawn(PhotonCreator(xmin, xmax, ymin, ymax, light, viewLoc, forward, up, img, context.self), s"PhotonSender$c,$id")
             child ! PhotonCreator.Render
           }
         } case UpdateColor(x, y, col) => {

@@ -1,7 +1,8 @@
 package acrt.geometrymanagement.typed
 
+import acrt.photometry.typed.PhotonCreator.PhotonCreatorIntersectResult
 import acrt.raytracing.typed.PixelHandler
-import akka.actor.typed.Behavior
+import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import swiftvis2.raytrace._
 
@@ -38,7 +39,7 @@ object GeometryOrganizerFew {
       case RecID(rec, k, id) => {
         id match {
           case Some(intD) => {
-            rec ! PixelHandler.IntersectResult(k, id)
+            rec ! PhotonCreatorIntersectResult(k, id)
           } 
           case None => {
             if(intersectsMap.contains(k)) {
@@ -50,7 +51,7 @@ object GeometryOrganizerFew {
               } else 
                 intersectsMap -= k
             } else {
-              rec ! PixelHandler.IntersectResult(k, None)
+              rec ! PhotonCreatorIntersectResult(k, None)
             }
           }
         }

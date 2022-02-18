@@ -1,10 +1,9 @@
 package acrt.geometrymanagement.typed
 
-import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.{Behaviors, ActorContext}
-import swiftvis2.raytrace.{Geometry, Ray, KDTreeGeometry, Vect, BoxBoundsBuilder, SphereBoundsBuilder, IntersectData}
-import acrt.geometrymanagement.typed
-import acrt.raytracing.typed.PixelHandler
+import acrt.photometry.typed.PhotonCreator.PhotonCreatorIntersectResult
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.Behaviors
+import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBoundsBuilder}
 
 object GeometryOrganizerAll {
   import GeometryOrganizer._
@@ -38,7 +37,7 @@ object GeometryOrganizerAll {
           val editedBuff = buffK.filter(_ != None)
 
           if(editedBuff.isEmpty){
-            rec ! PixelHandler.IntersectResult(k, None)
+            rec ! PhotonCreatorIntersectResult(k, None)
           } else {
             var lowest: IntersectData = editedBuff.head match {
               case Some(intD) => intD
@@ -56,7 +55,7 @@ object GeometryOrganizerAll {
               }
             }
 
-            rec ! PixelHandler.IntersectResult(k, Some(lowest))
+            rec ! PhotonCreatorIntersectResult(k, Some(lowest))
           }
         }
       }

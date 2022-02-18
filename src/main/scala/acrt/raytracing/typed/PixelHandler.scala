@@ -1,18 +1,17 @@
 package acrt.raytracing.typed
 
-import akka.actor.Actor
-import swiftvis2.raytrace._
-import akka.actor.Props
-import collection.mutable
 import acrt.geometrymanagement.typed._
+import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.{Behaviors, ActorContext}
+import swiftvis2.raytrace._
+
+import scala.collection.mutable
 
 object PixelHandler {
   sealed trait PixelWork
   case class AddRay(r: Ray, geomOrg: ActorRef[GeometryOrganizer.CastRay]) extends PixelWork
   case class SetColor(col: RTColor) extends PixelWork
-  case class IntersectResult(k: Long, intD: Option[IntersectData]) extends PixelWork
+  case class IntersectResult(k: Long, intD: Option[IntersectData]) extends PixelWork// with PhotonCreatorCommand
   case class StartLightMerger(geomOrg: ActorRef[GeometryOrganizer.CastRay]) extends PixelWork
 
   private val buff = mutable.ArrayBuffer[RTColor]()

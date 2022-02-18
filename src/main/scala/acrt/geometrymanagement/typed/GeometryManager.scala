@@ -1,12 +1,13 @@
 package acrt.geometrymanagement.typed
 
-import acrt.raytracing.typed.PixelHandler
+import acrt.photometry.typed.PhotonCreator.PhotonCreatorIntersectResult
+import acrt.raytracing.typed.PixelHandler.PixelWork
 import akka.actor.typed.scaladsl.{Behaviors, Routers}
 import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
 import swiftvis2.raytrace.{Geometry, Ray}
 
 object GeometryManager {
-  case class CastRay(recipient: ActorRef[PixelHandler.IntersectResult], k: Long, ray: Ray, geomOrg: ActorRef[GeometryOrganizer.RecID])
+  case class CastRay(recipient: ActorRef[PixelWork], k: Long, ray: Ray, geomOrg: ActorRef[GeometryOrganizer.RecID])
 
   def apply(geom: Geometry): Behavior[CastRay] = 
   Behaviors.receive { (context, message) =>

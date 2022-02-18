@@ -4,6 +4,7 @@ import acrt.raytracing.typed.PixelHandler
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import acrt.photometry.typed.ImageDrawer.Bounds
+import acrt.photometry.typed.PhotonCreator.PhotonCreatorIntersectResult
 import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBoundsBuilder}
  
 object GeometryOrganizerSome {
@@ -11,7 +12,7 @@ object GeometryOrganizerSome {
 
   def apply(simpleGeom: Seq[Geometry]): Behavior[Command] = Behaviors.receive { (context, message) =>
     val numTotalManagers = 10
-  
+
     val ymin = simpleGeom.minBy(_.boundingSphere.center.y).boundingSphere.center.y
     val ymax = simpleGeom.maxBy(_.boundingSphere.center.y).boundingSphere.center.y
   
@@ -29,7 +30,7 @@ object GeometryOrganizerSome {
         buffMap += (k -> new collection.mutable.ArrayBuffer[Option[IntersectData]])
         numManagersMap += (k -> intersects.size)
 
-        if (intersects.isEmpty) rec ! PixelHandler.IntersectResult(k, None)
+        if (intersects.isEmpty) rec ! PhotonCreatorIntersectResult(k, None)
         else for(i <- intersects) {
             geomManagers(i._1) ! GeometryManager.CastRay(rec, k, r, context.self)
         }
@@ -51,7 +52,7 @@ object GeometryOrganizerSome {
           val editedBuff = buffK.filter(_ != None)
 
           if(editedBuff.isEmpty){
-            rec ! PixelHandler.IntersectResult(k, None)
+            rec ! PhotonCreatorIntersectResult(k, None)
           } else {
             var lowest: IntersectData = editedBuff.head match {
               case Some(intD) => intD
@@ -69,7 +70,7 @@ object GeometryOrganizerSome {
               }
             }
 
-            rec ! PixelHandler.IntersectResult(k, Some(lowest))
+            rec ! PhotonCreatorIntersectResult(k, Some(lowest))
           }
         }
       }
