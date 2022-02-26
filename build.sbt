@@ -1,6 +1,6 @@
 name := "AkkaRayTracing"
 version := "1.0"
-scalaVersion := "2.12.10"
+scalaVersion := "2.12.15"
 
 // To whomever did this, set your JAVA_HOME enviroment variable on your system.
 //javaHome := Some(file("D:\\graalvm-ce-19.2.1\\jre\\"))

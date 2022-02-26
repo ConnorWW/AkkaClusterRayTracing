@@ -15,7 +15,7 @@ object Scatterer {
       val interPoint = id.point + id.norm * 1e-8
       val right = forward.cross(up)
 
-      Main.organizer ! GeometryOrganizer.CastRay(context.self, scala.util.Random.nextLong(), Ray(interPoint, viewLoc))
+      Main.organizer ! GeometryOrganizer.CastRay[PhotonCreator.PhotonCreatorIntersectResult](context.self, scala.util.Random.nextLong(), Ray(interPoint, viewLoc))
 
       message match {
         case PhotonCreator.PhotonCreatorIntersectResult(k, intD) => {

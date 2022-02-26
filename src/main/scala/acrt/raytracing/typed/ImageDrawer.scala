@@ -40,7 +40,7 @@ object ImageDrawer {
   //private val totalPixels = img.width * img.height * numRays
   private val start = System.nanoTime()
 
-  def apply(lights: List[PointLight], img: rendersim.RTBufferedImage, numRays: Int, geomOrg: ActorRef[GeometryOrganizer.CastRay]): Behavior[ImageWork] = Behaviors.receive { (context, message) => 
+  def apply(lights: List[PointLight], img: rendersim.RTBufferedImage, numRays: Int, geomOrg: ActorRef[GeometryOrganizer.CastRay[PixelHandler.PixelWork]]): Behavior[ImageWork] = Behaviors.receive { (context, message) => 
     //only accepts a Start message
     message match {
       case Start(eye, topLeft, right, down) => {

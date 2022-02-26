@@ -40,7 +40,7 @@ object Main extends App {
   val simpleGeom = GeometrySetup.makeTwoSpheresIntersecting()
 
 
-  val organizer = system.create(GeometryOrganizerSome(simpleGeom), "GeomOrganizer")
+  val organizer = system.create(GeometryOrganizerSome[PhotonCreator.PhotonCreatorIntersectResult](simpleGeom, PhotonCreator.PhotonCreatorIntersectResult.apply), "GeomOrganizer")
   val imageDrawer = system.create(ImageDrawer(lights, viewLoc, forward, up, img), "ImageDrawer")
 
   imageDrawer ! ImageDrawer.AcquireBounds(organizer)

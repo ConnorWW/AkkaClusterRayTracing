@@ -10,7 +10,7 @@ import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBounds
 object GeometryOrganizerSome {
   import GeometryOrganizer._
 
-  def apply(simpleGeom: Seq[Geometry]): Behavior[Command] = Behaviors.receive { (context, message) =>
+  def apply[A](simpleGeom: Seq[Geometry], intersectResultMaker: (Long, Option[IntersectData]) => A): Behavior[Command[A]] = Behaviors.receive { (context, message) =>
     val numTotalManagers = 10
 
     val ymin = simpleGeom.minBy(_.boundingSphere.center.y).boundingSphere.center.y
@@ -18,7 +18,7 @@ object GeometryOrganizerSome {
   
     val geomSeqs = simpleGeom.groupBy(g => ((g.boundingSphere.center.y - ymin) / (ymax-ymin) * numTotalManagers).toInt min (numTotalManagers - 1))
     val geoms = geomSeqs.map { case (n, gs) => n -> new KDTreeGeometry(gs, builder = SphereBoundsBuilder) }
-    val geomManagers: Map[Int, ActorRef[GeometryManager.CastRay]] = geoms.map { case (n, g) => n -> context.spawn(GeometryManager(g), "GeometryManager" + n) }
+    val geomManagers: Map[Int, ActorRef[GeometryManager.CastRay[A]]] = geoms.map { case (n, g) => n -> context.spawn(GeometryManager[A](g), "GeometryManager" + n) }
 
 
     val buffMap = collection.mutable.Map[Long, collection.mutable.ArrayBuffer[Option[IntersectData]]]() 
@@ -30,7 +30,7 @@ object GeometryOrganizerSome {
         buffMap += (k -> new collection.mutable.ArrayBuffer[Option[IntersectData]])
         numManagersMap += (k -> intersects.size)
 
-        if (intersects.isEmpty) rec ! PhotonCreatorIntersectResult(k, None)
+        if (intersects.isEmpty) rec ! intersectResultMaker(k, None)
         else for(i <- intersects) {
             geomManagers(i._1) ! GeometryManager.CastRay(rec, k, r, context.self)
         }
@@ -52,7 +52,7 @@ object GeometryOrganizerSome {
           val editedBuff = buffK.filter(_ != None)
 
           if(editedBuff.isEmpty){
-            rec ! PhotonCreatorIntersectResult(k, None)
+            rec ! intersectResultMaker(k, None)
           } else {
             var lowest: IntersectData = editedBuff.head match {
               case Some(intD) => intD
@@ -70,7 +70,7 @@ object GeometryOrganizerSome {
               }
             }
 
-            rec ! PhotonCreatorIntersectResult(k, Some(lowest))
+            rec ! intersectResultMaker(k, Some(lowest))
           }
         }
       }

@@ -7,7 +7,7 @@ import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBounds
 
 object GeometryOrganizerAll {
   import GeometryOrganizer._
-  def apply(simpleGeom: Seq[Geometry]): Behavior[Command] = Behaviors.receive { (context, message) =>
+  def apply[A](simpleGeom: Seq[Geometry], intersectResultMaker: (Long, Option[IntersectData]) => A): Behavior[Command[A]] = Behaviors.receive { (context, message) =>
     val numManagers = 10
 
     val ymin = simpleGeom.minBy(_.boundingSphere.center.y).boundingSphere.center.y
@@ -15,7 +15,7 @@ object GeometryOrganizerAll {
 
     val geomSeqs = simpleGeom.groupBy(g => ((g.boundingSphere.center.y - ymin) / (ymax-ymin) * numManagers).toInt min (numManagers - 1))
     val geoms = geomSeqs.mapValues(gs => new KDTreeGeometry(gs, builder = SphereBoundsBuilder))
-    val geomManagers = geoms.map { case (n, g) => n -> context.spawn(GeometryManager(g), "GeometryManager" + n) }
+    val geomManagers = geoms.map { case (n, g) => n -> context.spawn(GeometryManager[A](g), "GeometryManager" + n) }
 
     val buffMap = collection.mutable.Map[Long, collection.mutable.ArrayBuffer[Option[IntersectData]]]() 
   
@@ -25,6 +25,7 @@ object GeometryOrganizerAll {
         geomManagers.foreach(_._2 ! GeometryManager.CastRay(rec, k, r, context.self))
         context.log.info(s"Cast ray $k to GeometryManagers.")
       }
+      case GetBounds(imgDrawer) => {} // Nothing needed for this approach
 
       case RecID(rec, k, id) => {
         val buffK = buffMap(k)
@@ -37,7 +38,7 @@ object GeometryOrganizerAll {
           val editedBuff = buffK.filter(_ != None)
 
           if(editedBuff.isEmpty){
-            rec ! PhotonCreatorIntersectResult(k, None)
+            rec ! intersectResultMaker(k, None)
           } else {
             var lowest: IntersectData = editedBuff.head match {
               case Some(intD) => intD
@@ -55,7 +56,7 @@ object GeometryOrganizerAll {
               }
             }
 
-            rec ! PhotonCreatorIntersectResult(k, Some(lowest))
+            rec ! intersectResultMaker(k, Some(lowest))
           }
         }
       }

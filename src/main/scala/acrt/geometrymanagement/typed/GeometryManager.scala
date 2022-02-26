@@ -5,21 +5,22 @@ import acrt.raytracing.typed.PixelHandler.PixelWork
 import akka.actor.typed.scaladsl.{Behaviors, Routers}
 import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
 import swiftvis2.raytrace.{Geometry, Ray}
+import akka.actor.typed.scaladsl.PoolRouter
 
 object GeometryManager {
-  case class CastRay(recipient: ActorRef[PixelWork], k: Long, ray: Ray, geomOrg: ActorRef[GeometryOrganizer.RecID])
+  case class CastRay[A](recipient: ActorRef[A], k: Long, ray: Ray, geomOrg: ActorRef[GeometryOrganizer.RecID[A]])
 
-  def apply(geom: Geometry): Behavior[CastRay] = 
+  def apply[A](geom: Geometry): Behavior[CastRay[A]] = 
   Behaviors.receive { (context, message) =>
     //creates a router of intersectors
     val pool = Routers.pool(poolSize = Runtime.getRuntime().availableProcessors())(
         // make sure the workers are restarted if they fail
-        Behaviors.supervise(Intersector(geom)).onFailure[Exception](SupervisorStrategy.restart))
+        Behaviors.supervise(Intersector[A](geom)).onFailure[Exception](SupervisorStrategy.restart))
     val router = context.spawn(pool, "IntersectRouter")
     val k = message.k
     context.log.info(s"Casting Ray $k to router.")
     //sends the castRay message to the intersector pool
-    router ! Intersector.CastRay(message.k, message.ray, message.recipient, message.geomOrg)
+    router ! message
     Behaviors.same
   }
 }

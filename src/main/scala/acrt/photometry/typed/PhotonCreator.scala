@@ -6,7 +6,7 @@ import akka.actor.typed.{ActorRef, Behavior}
 import swiftvis2.raytrace._
 
 object PhotonCreator {
-  trait PhotonCreatorCommand
+  sealed trait PhotonCreatorCommand
   case object Render extends PhotonCreatorCommand
   case class SetColor(x: Int, y: Int, col: RTColor) extends PhotonCreatorCommand
   case class PhotonCreatorIntersectResult(k: Long, intD: Option[IntersectData]) extends PhotonCreatorCommand

@@ -9,13 +9,13 @@ import scala.collection.mutable
 
 object PixelHandler {
   sealed trait PixelWork
-  case class AddRay(r: Ray, geomOrg: ActorRef[GeometryOrganizer.CastRay]) extends PixelWork
+  case class AddRay(r: Ray, geomOrg: ActorRef[GeometryOrganizer.CastRay[PixelWork]]) extends PixelWork
   case class SetColor(col: RTColor) extends PixelWork
   case class IntersectResult(k: Long, intD: Option[IntersectData]) extends PixelWork// with PhotonCreatorCommand
-  case class StartLightMerger(geomOrg: ActorRef[GeometryOrganizer.CastRay]) extends PixelWork
+  case class StartLightMerger(geomOrg: ActorRef[GeometryOrganizer.CastRay[PixelWork]]) extends PixelWork
 
   private val buff = mutable.ArrayBuffer[RTColor]()
-  private var geometryOrg: ActorRef[GeometryOrganizer.CastRay] = null
+  private var geometryOrg: ActorRef[GeometryOrganizer.CastRay[PixelWork]] = null
 
   def apply(lights: List[PointLight], i: Int, j: Int, numRays: Int, parent: ActorRef[ImageDrawer.SetColor]): Behavior[PixelWork] = Behaviors.receive { (context, message) => 
     var count = 0

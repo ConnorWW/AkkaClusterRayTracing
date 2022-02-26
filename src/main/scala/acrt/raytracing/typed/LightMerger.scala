@@ -23,7 +23,7 @@ object LightMerger {
   
   def apply(lights: List[PointLight], id: IntersectData, parent: ActorRef[PixelHandler.PixelWork]): Behavior[PixelWork] = Behaviors.receive { (context, message) =>
     message match {
-      case StartLightMerger(geomOrg: ActorRef[GeometryOrganizer.CastRay]) => {
+      case StartLightMerger(geomOrg: ActorRef[GeometryOrganizer.CastRay[PixelWork]]) => {
         for(light <- lights) {
           val outRay = Ray(id.point + id.norm * 0.0001 * id.geom.boundingSphere.radius, light.point)
           val k = scala.util.Random.nextLong()

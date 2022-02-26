@@ -7,12 +7,12 @@ import swiftvis2.raytrace.{Point, RTColor, RTImage, Vect}
 
 
 object ImageDrawer {
-  trait Command
+  sealed trait Command
   case object MoreRays extends ImageDrawer.Command
   case class Start(startPixels: Array[Array[RTColor]]) extends Command
   case class UpdateColor(x: Int, y: Int, col: RTColor) extends Command
   case class Bounds(xmin: Double, xmax: Double, ymin: Double, ymax: Double) extends Command
-  case class AcquireBounds(org: ActorRef[GeometryOrganizer.Command]) extends Command
+  case class AcquireBounds(org: ActorRef[GeometryOrganizer.Command[PhotonCreator.PhotonCreatorIntersectResult]]) extends Command
 
 
 

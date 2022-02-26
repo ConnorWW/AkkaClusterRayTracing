@@ -52,7 +52,7 @@ object Main {
       var repainting = true
       var last = System.nanoTime()
       //spawns a GeometryOrganizer and an ImageDrawer
-      val organizer = context.spawn(GeometryOrganizerFew(particles), "GeomOrganizer")
+      val organizer = context.spawn(GeometryOrganizerFew[PixelHandler.PixelWork](particles, (k, opt) => PixelHandler.IntersectResult(k, opt)), "GeomOrganizer")
       val imageDrawer = context.spawn(ImageDrawer(lights, img, numRays, organizer), "ImageDrawer")
       
       imageDrawer ! ImageDrawer.Start(eye, topLeft, right, down)
