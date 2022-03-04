@@ -8,6 +8,7 @@ import akka.actor.typed.ActorSystem
 import swiftvis2.raytrace.{Point, PointLight, RTColor}
 
 import scala.swing.{Alignment, Label, MainFrame, Swing}
+import scala.util.Random
 
 object Main extends App {
   val numRays = 1
@@ -37,7 +38,7 @@ object Main extends App {
   val up = -down
 
 
-  val simpleGeom = GeometrySetup.makeTwoSpheresIntersecting()
+  val simpleGeom = GeometrySetup.randomGeometryActualArr(new Random, 100, 0, 100, 0, 100, 0, 10, 20)
 
 
   val organizer = system.create(GeometryOrganizerSome[PhotonCreator.PhotonCreatorIntersectResult](simpleGeom, PhotonCreator.PhotonCreatorIntersectResult.apply), "GeomOrganizer")
