@@ -13,43 +13,50 @@ object PhotonCreator {
 
   def apply(xmin: Double, xmax: Double, ymin: Double, ymax: Double, source: PhotonSource,
             viewLoc: Point, forward: Vect, up: Vect, image: RTImage, parent: ActorRef[ImageDrawer.Command]):Behavior[PhotonCreatorCommand] = {
-    Behaviors.receive { (context, message:PhotonCreatorCommand) =>
+    Behaviors.setup { context => 
       val right = forward.cross(up)
       var pixels = Array.fill(image.width, image.height)(RTColor.Black)
       val organizer = Main.organizer
       val rays = collection.mutable.Map[Long, Ray]()
       var returnedRays = 0L
-      message match {
-        case SetColor(x, y, col) => {
-          parent ! ImageDrawer.UpdateColor(x, y, pixels(x)(y) + col)
-          pixels(x)(y) = pixels(x)(y) + col
-        }
-        case PhotonCreatorIntersectResult(k, oid:Option[IntersectData]) => {
-          oid.map { iData:IntersectData =>
-            val newScatterer = context.spawn(Scatterer(source, viewLoc, forward, up, iData, image.width, image.height, rays(k).dir, context.self), s"Scatterer$k")
-            //println(s"Ray $k was Scattered")
+    
+      Behaviors.receiveMessage { message:PhotonCreatorCommand =>
+        
+        message match {
+          case SetColor(x, y, col) => {
+            parent ! ImageDrawer.UpdateColor(x, y, pixels(x)(y) + col)
+            pixels(x)(y) = pixels(x)(y) + col
+            context.log.info("Set pixel color")
           }
+          case PhotonCreatorIntersectResult(k, oid:Option[IntersectData]) => {
+            context.log.info("PhotonCreatorIntersectResult received, isEmpty: " + oid.isEmpty)
+            oid.map { iData:IntersectData =>
+              context.log.info("Creating newScatterer")
+              val newScatterer = context.spawn(Scatterer(source, viewLoc, forward, up, iData, image.width, image.height, rays(k).dir, context.self), s"Scatterer$k")
+              //println(s"Ray $k was Scattered")
+            }
 
-        }
-        case Render => {
-          for (_ <- 0L until source.numPhotons) {
-            val ray = Ray(
-              source.light.point,
-              Point(
-                xmin + math.random() * (xmax - xmin),
-                ymin + math.random() * (ymax - ymin),
-                0.0
+          }
+          case Render => {
+            for (_ <- 0L until source.numPhotons) {
+              val ray = Ray(
+                source.light.point,
+                Point(
+                  xmin + math.random() * (xmax - xmin),
+                  ymin + math.random() * (ymax - ymin),
+                  0.0
+                )
               )
-            )
-            val k = scala.util.Random.nextLong()
-            organizer ! GeometryOrganizer.CastRay(context.self, k, ray)
-            rays += (k -> ray)
+              val k = scala.util.Random.nextLong()
+              organizer ! GeometryOrganizer.CastRay(context.self, k, ray)
+              rays += (k -> ray)
+            }
           }
         }
+
+
+        Behaviors.same
       }
-
-
-      Behaviors.same
     }
   }
 }

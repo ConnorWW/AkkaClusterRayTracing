@@ -44,7 +44,7 @@ object GeometryOrganizerSome {
         }
         case GetBounds(imgDrawer) => {
           //TODO: FIX
-          imgDrawer ! Bounds(-1000000, 1000000, -1000000, 1000000)
+          imgDrawer ! Bounds(100, 0, 100, 0)
         }
 
         case RecID(rec, k, id) => {
