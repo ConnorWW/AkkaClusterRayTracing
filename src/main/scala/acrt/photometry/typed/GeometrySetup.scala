@@ -26,15 +26,22 @@ object GeometrySetup {
 	}
 
 	def randomGeometryActualArr(rand:scala.util.Random, maxX:Double, minX:Double, maxY:Double, minY:Double, maxZ:Double, minZ:Double, maxRadius:Double, n:Int):Array[GeomSphere] = {
+		val rad = 3 //rand.nextDouble * (maxRadius)
 		def randGeometry():GeomSphere = {
 			val x = rand.nextDouble * (maxX - minX) + minX
 			val y = rand.nextDouble * (maxY - minY) + minY
 			val z = rand.nextDouble * (maxZ - minZ) + minZ
-			val rad = 3 //rand.nextDouble * (maxRadius)
+			
 			val center = new Point(x, y, z)
 			new GeomSphere(center, rad, p => RTColor(0xFFFFFF00), p => 0.0)
+			//the spheres are yellow
 		}
-		Array.fill(n)(randGeometry)
+		val xs = Array(minX, maxX)
+		val ys = Array(minY, maxY)
+		val zs = Array(minZ, maxZ)
+		val edgeCenterPoints = for(x <- xs; y <- ys; z <- zs) yield new Point (x, y, z)
+		val edgeSpheres = edgeCenterPoints.map(center => new GeomSphere(center, rad, p => RTColor(0xFFFFFF00), p => 0.0))
+		Array.fill(n)(randGeometry) ++ edgeSpheres
 	}
 
 	//for photometric geom we need an RDD[(Int, KDTreeGeometry[BoundingBox])]
