@@ -44,21 +44,21 @@ object GeometryOrganizerSome {
         }
         case GetBounds(imgDrawer) => {
           //TODO: FIX
-          imgDrawer ! Bounds(100, 0, 100, 0)
+          imgDrawer ! Bounds(0, 100, 0, 100)
         }
 
         case RecID(rec, k, id) => {
           val buffK = buffMap(k)
           val numManagersK = numManagersMap(k)
           buffK += id
-          context.log.info(s"RECID: buffK.length: ${buffK.length}, numManagersK: ${numManagersK}, bool: ${buffK.length < numManagersK}")
+          context.log.info(s"RECID: buffK.length: ${buffK.length}, numManagersK: ${numManagersK}, bool: ${buffK.length < numManagersK}, recIDEmpty: ${id.isEmpty}")
           if(buffK.length < numManagersK) {
             buffMap += (k -> buffK)
           } else {
             val editedBuff = buffK.filter(_ != None)
 
             if(editedBuff.isEmpty){
-              context.log.info(s"Sent intersect result $k to ${rec.path.name}")
+              context.log.info(s"Sent empty intersect result $k to ${rec.path.name}")
               rec ! intersectResultMaker(k, None)
             } else {
               var lowest: IntersectData = editedBuff.head match {
@@ -76,7 +76,7 @@ object GeometryOrganizerSome {
                   case None => println("how did we get here?")
                 }
               }
-              context.log.info(s"Sent intersect result $k to ${rec.path.name}")
+              context.log.info(s"Sent full intersect result $k to ${rec.path.name}")
               rec ! intersectResultMaker(k, Some(lowest))
             }
           }
