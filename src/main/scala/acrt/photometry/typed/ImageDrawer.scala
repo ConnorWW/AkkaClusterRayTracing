@@ -44,6 +44,7 @@ object ImageDrawer {
             child ! PhotonCreator.Render
           }
         } case UpdateColor(x, y, col) => {
+          context.log.info(s"Updating color $x, $y, $col")
           changedPixels += 1
           howManyRays -= 1
 
@@ -58,7 +59,11 @@ object ImageDrawer {
 
           if(howManyRays <= 0) println("All rays drawn.")
 
-        } case Bounds(xmin, xmax, ymin, ymax) => {
+        } case Bounds(bxmin, bxmax, bymin, bymax) => {
+          xmin = bxmin
+          xmax = bxmax
+          ymin = bymin
+          ymax = bymax
           println(s"smin: $xmin, xmax: $xmax, ymin: $ymin, ymax: $ymax")
           val startPixels = Array.fill(img.width, img.height)(RTColor.Black)
           context.self ! ImageDrawer.Start(startPixels)

@@ -21,7 +21,7 @@ object GeometryManager {
     
     Behaviors.receiveMessage {  message =>
       val k = message.k
-      context.log.info(s"Casting Ray $k to router.")
+      // context.log.info(s"Casting Ray $k to router.")
       //sends the castRay message to the intersector pool
       router ! message
       Behaviors.same

@@ -29,7 +29,7 @@ object PhotonCreator {
             context.log.info("Set pixel color")
           }
           case PhotonCreatorIntersectResult(k, oid:Option[IntersectData]) => {
-            context.log.info("PhotonCreatorIntersectResult received, isEmpty: " + oid.isEmpty)
+            // context.log.info("PhotonCreatorIntersectResult received, isEmpty: " + oid.isEmpty)
             oid.map { iData:IntersectData =>
               context.log.info("Creating newScatterer")
               val newScatterer = context.spawn(Scatterer(source, viewLoc, forward, up, iData, image.width, image.height, rays(k).dir, context.self), s"Scatterer$k")
@@ -47,6 +47,7 @@ object PhotonCreator {
                   0.0
                 )
               )
+              context.log.info(s"Casting $ray")
               val k = scala.util.Random.nextLong()
               organizer ! GeometryOrganizer.CastRay(context.self, k, ray)
               rays += (k -> ray)

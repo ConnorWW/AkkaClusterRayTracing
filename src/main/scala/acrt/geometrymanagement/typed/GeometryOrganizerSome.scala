@@ -31,34 +31,34 @@ object GeometryOrganizerSome {
         case CastRay(rec, k, r) => {
           //there is only one geom, none of the rays are hitting it
           val intersects = geoms.filter(_._2.boundingSphere.intersectParam(r) != None)
-          context.log.info(s"geoms size: ${geoms.size}")
+          // context.log.info(s"geoms size: ${geoms.size}")
           buffMap += (k -> new collection.mutable.ArrayBuffer[Option[IntersectData]])
           numManagersMap += (k -> intersects.size)
-          context.log.info(s"intersects is empty: ${intersects.isEmpty}")
+          // context.log.info(s"intersects is empty: ${intersects.isEmpty}")
           //intersects is empty every time
           if (intersects.isEmpty) rec ! intersectResultMaker(k, None)
           else for(i <- intersects) {
               geomManagers(i._1) ! GeometryManager.CastRay(rec, k, r, context.self)
           }
-            context.log.info(s"Cast ray $k to GeometryManagers.")
+            // context.log.info(s"Cast ray $k to GeometryManagers.")
         }
         case GetBounds(imgDrawer) => {
           //TODO: FIX
-          imgDrawer ! Bounds(0, 100, 0, 100)
+          imgDrawer ! Bounds(-1.0, 1.0, -1.0, 1.0)
         }
 
         case RecID(rec, k, id) => {
           val buffK = buffMap(k)
           val numManagersK = numManagersMap(k)
           buffK += id
-          context.log.info(s"RECID: buffK.length: ${buffK.length}, numManagersK: ${numManagersK}, bool: ${buffK.length < numManagersK}, recIDEmpty: ${id.isEmpty}")
+          // context.log.info(s"RECID: buffK.length: ${buffK.length}, numManagersK: ${numManagersK}, bool: ${buffK.length < numManagersK}, recIDEmpty: ${id.isEmpty}")
           if(buffK.length < numManagersK) {
             buffMap += (k -> buffK)
           } else {
             val editedBuff = buffK.filter(_ != None)
 
             if(editedBuff.isEmpty){
-              context.log.info(s"Sent empty intersect result $k to ${rec.path.name}")
+              // context.log.info(s"Sent empty intersect result $k to ${rec.path.name}")
               rec ! intersectResultMaker(k, None)
             } else {
               var lowest: IntersectData = editedBuff.head match {
@@ -76,7 +76,7 @@ object GeometryOrganizerSome {
                   case None => println("how did we get here?")
                 }
               }
-              context.log.info(s"Sent full intersect result $k to ${rec.path.name}")
+              // context.log.info(s"Sent full intersect result $k to ${rec.path.name}")
               rec ! intersectResultMaker(k, Some(lowest))
             }
           }

@@ -23,7 +23,7 @@ object GeometryOrganizerAll {
       case CastRay(rec, k, r) => {
         buffMap += (k -> new collection.mutable.ArrayBuffer[Option[IntersectData]])
         geomManagers.foreach(_._2 ! GeometryManager.CastRay(rec, k, r, context.self))
-        context.log.info(s"Cast ray $k to GeometryManagers.")
+        // context.log.info(s"Cast ray $k to GeometryManagers.")
       }
       case GetBounds(imgDrawer) => {} // Nothing needed for this approach
 

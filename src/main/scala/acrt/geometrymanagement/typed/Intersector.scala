@@ -11,7 +11,7 @@ object Intersector {
   //only accepts one message: CastRay
   def apply[A](geom: Geometry): Behavior[GeometryManager.CastRay[A]] = Behaviors.receive { (context, message) =>
     val k = message.k
-    context.log.info(s"Intersect Geometry $k.")
+    // context.log.info(s"Intersect Geometry $k.")
     //sends the original geometryOrganizer the IntersectResult, the id, and the intersectData of the potential collision
     message.geomOrg ! GeometryOrganizer.RecID(message.recipient, message.k, geom intersect message.ray)
     Behaviors.same

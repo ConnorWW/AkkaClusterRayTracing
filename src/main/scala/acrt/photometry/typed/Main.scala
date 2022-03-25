@@ -18,14 +18,15 @@ object Main extends App {
   val numSims = 10
 
   //val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(1, 0, 0.2)), 4000))
-  val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(200, 200, 0)), 4000), PhotonSource(PointLight(RTColor(1, 1, 1), Point(-200, -200, 0)), 4000),
-                   PhotonSource(PointLight(RTColor(1, 1, 1), Point(200, -200, -100)), 4000), PhotonSource(PointLight(RTColor(1, 1, 1), Point(-200, 200, 100)), 4000))
+  val lights = List(//PhotonSource(PointLight(RTColor(1, 1, 1), Point(200, 200, 0)), 4000), PhotonSource(PointLight(RTColor(1, 1, 1), Point(-200, -200, 0)), 4000),
+                   PhotonSource(PointLight(RTColor(1, 0, 0), Point(200, -200, 100)), 400000), PhotonSource(PointLight(RTColor(0, 0, 1), Point(-200, 200, 100)), 400000))
   //val forward = Vect(0, 0, -1)
   //val up = Vect(0, 1, 0)
   //val viewLoc = Point(0.0, 0.0, numFiles*1e-5)
   val n = math.sqrt(numSims.toDouble / 10.0).ceil.toInt
   val viewLoc = Point(0.0, 0.0, (10 * n)*1e-5)
-  val bimg = new BufferedImage(2800, 2800, BufferedImage.TYPE_INT_ARGB)
+  val bimg = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB)
+  for (i <- 0 until bimg.getWidth(); j <- 0 until bimg.getHeight()) bimg.setRGB(i, j, 0xFF000000)
   val img = new rendersim.RTBufferedImage(bimg)
 
   val pc = new PhotometryCreator
@@ -33,18 +34,18 @@ object Main extends App {
   val system = ActorSystem
 
 
-  val view = GeometrySetup.standardView()
+  val view = GeometrySetup.standardDownView()
   val (eye, topLeft, right, down) = view
 
   val forward = right.cross(down) //could potentially be incorrectly negative if I got the handed-ness wrong
   val up = -down
 
 
-  val simpleGeom = GeometrySetup.randomGeometryActualArr(new Random, 100, 0, 100, 0, 100, 0, 10, 20)
+  val simpleGeom = GeometrySetup.randomGeometryActualArr(new Random, 1, -1, 1, -1, 1, -1, 0.1, 20)
 
 
   val organizer = system.create(GeometryOrganizerSome[PhotonCreator.PhotonCreatorIntersectResult](simpleGeom, PhotonCreator.PhotonCreatorIntersectResult.apply), "GeomOrganizer")
-  val imageDrawer = system.create(ImageDrawer(lights, viewLoc, forward, up, img), "ImageDrawer")
+  val imageDrawer = system.create(ImageDrawer(lights, eye, forward, up, img), "ImageDrawer")
 
   imageDrawer ! ImageDrawer.AcquireBounds(organizer)
 
@@ -62,6 +63,7 @@ object Main extends App {
     val delay = System.nanoTime() - last
     if (delay >= (.5 * 1e9)) {
       frame.repaint()
+      println("Repainting")
       last = System.nanoTime()
     }
   }

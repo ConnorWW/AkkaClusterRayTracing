@@ -33,7 +33,7 @@ object GeometryOrganizerFew {
         } else {
           rec ! intersectResultMaker(k, None)
         }
-        context.log.info(s"Cast ray $k to GeometryManagers.")
+        // context.log.info(s"Cast ray $k to GeometryManagers.")
       }
       case GetBounds(imgDrawer) => {} // Nothing needed for this approach
 
