@@ -17,13 +17,15 @@ object Main extends App {
   val viewSize = 1e-5
   val numSims = 10
 
-  val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(1, 0, 0.2)), 4000))
+  //val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(1, 0, 0.2)), 4000))
+  val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(200, 200, 0)), 4000), PhotonSource(PointLight(RTColor(1, 1, 1), Point(-200, -200, 0)), 4000),
+                   PhotonSource(PointLight(RTColor(1, 1, 1), Point(200, -200, -100)), 4000), PhotonSource(PointLight(RTColor(1, 1, 1), Point(-200, 200, 100)), 4000))
   //val forward = Vect(0, 0, -1)
   //val up = Vect(0, 1, 0)
   //val viewLoc = Point(0.0, 0.0, numFiles*1e-5)
   val n = math.sqrt(numSims.toDouble / 10.0).ceil.toInt
   val viewLoc = Point(0.0, 0.0, (10 * n)*1e-5)
-  val bimg = new BufferedImage(800, 800, BufferedImage.TYPE_INT_ARGB)
+  val bimg = new BufferedImage(2800, 2800, BufferedImage.TYPE_INT_ARGB)
   val img = new rendersim.RTBufferedImage(bimg)
 
   val pc = new PhotometryCreator
