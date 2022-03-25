@@ -35,16 +35,16 @@ object PhotonCreator {
               val newScatterer = context.spawn(Scatterer(source, viewLoc, forward, up, iData, image.width, image.height, rays(k).dir, context.self), s"Scatterer$k")
               //println(s"Ray $k was Scattered")
             }
-
           }
           case Render => {
             for (_ <- 0L until source.numPhotons) {
+              context.log.info(s"xmin: $xmin xmax: $xmax ymin: $ymin ymax: $ymax ")
               val ray = Ray(
                 source.light.point,
                 Point(
                   xmin + math.random() * (xmax - xmin),
                   ymin + math.random() * (ymax - ymin),
-                  0.0
+                  /*0.0*/math.random() * 2 //zmax - zmin but we don't have those here
                 )
               )
               context.log.info(s"Casting $ray")
