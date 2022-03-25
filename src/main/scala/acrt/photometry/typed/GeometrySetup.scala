@@ -26,12 +26,12 @@ object GeometrySetup {
 	}
 
 	def randomGeometryActualArr(rand:scala.util.Random, maxX:Double, minX:Double, maxY:Double, minY:Double, maxZ:Double, minZ:Double, maxRadius:Double, n:Int):Array[GeomSphere] = {
-		val rad = (rand.nextDouble * 0.9 + 0.1) * (maxRadius)
+		val rad = 3//(rand.nextDouble * 0.9 + 0.1) * (maxRadius)
 		def randGeometry():GeomSphere = {
 			val x = rand.nextDouble * (maxX - minX) + minX
 			val y = rand.nextDouble * (maxY - minY) + minY
 			val z = rand.nextDouble * (maxZ - minZ) + minZ
-			
+			println(s"x $x y $y z $z")
 			val center = new Point(x, y, z)
 			new GeomSphere(center, rad, p => RTColor(1, 1, 1, 1), p => 0.0)
 			//the spheres are yellow
@@ -39,9 +39,16 @@ object GeometrySetup {
 		val xs = Array(minX, maxX)
 		val ys = Array(minY, maxY)
 		val zs = Array(minZ, maxZ)
+		val xdiff = maxX - minX /3
+		val ydiff = maxY - minY /3
+		val gridcenters = for(x <- 0 to 3; y <- 0 to 3) yield {
+			new Point(minX + (x * xdiff), minY + (y * ydiff), 0)
+		}
+		val gridspheres = gridcenters.map(center => new GeomSphere(center, 1, p => RTColor(1, 1, 1, 1), p => 0.0))
 		val edgeCenterPoints = for(x <- xs; y <- ys; z <- zs) yield new Point (x, y, z)
 		val edgeSpheres = edgeCenterPoints.map(center => new GeomSphere(center, rad, p => RTColor(1, 1, 1, 1), p => 0.0))
-		Array.fill(n)(randGeometry()) //++ edgeSpheres
+		val arr = Array.fill(n)(randGeometry())
+		/*arr*/ /*++ edgeSpheres*/ /*++*/ gridspheres.toArray
 	}
 
 	//for photometric geom we need an RDD[(Int, KDTreeGeometry[BoundingBox])]
