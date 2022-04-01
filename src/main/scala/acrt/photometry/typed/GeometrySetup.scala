@@ -51,11 +51,15 @@ object GeometrySetup {
 		/*arr*/ /*++ edgeSpheres*/ /*++*/ gridspheres.toArray
 	}
 
+	//used with standardDownView to get a sphere that covers the entire image.
+	def hugeSphere(): Array[GeomSphere] = {
+		Array(new GeomSphere(new Point(0, 0, -1), 4, p => RTColor(1, 1, 1, 1), p => 0.0))
+	}
 	//for photometric geom we need an RDD[(Int, KDTreeGeometry[BoundingBox])]
   	def smallPhoGeom():Array[(Int, KDTreeGeometry[BoundingBox])] = {
 		Array((1, new KDTreeGeometry[BoundingBox](randomGeometryActualArr(new Random(), 10, -10, 10, 15, 10, -10, 4, 20), 5, BoxBoundsBuilder)))
   	}
-
+	
 	def readParticles(): Geometry = {
 		//Pulls the geometry data from the supplied file within the given directory. Assigns the color of the spheres to black.
 		val carURL = new URL("http://www.cs.trinity.edu/~mlewis/Rings/AMNS-Moonlets/Moonlet4/CartAndRad.5000.bin")
