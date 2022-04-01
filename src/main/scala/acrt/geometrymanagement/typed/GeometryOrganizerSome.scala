@@ -4,6 +4,7 @@ import acrt.raytracing.typed.PixelHandler
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import acrt.photometry.typed.ImageDrawer.Bounds
+import swiftvis2.raytrace.ListScene
 import acrt.photometry.typed.PhotonCreator.PhotonCreatorIntersectResult
 import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBoundsBuilder}
  
@@ -44,6 +45,7 @@ object GeometryOrganizerSome {
         }
         case GetBounds(imgDrawer) => {
           //TODO: FIX
+          //new ListScene(simpleGeom: _*).boundingBox.max
           imgDrawer ! Bounds(-1.0, 1.0, -1.0, 1.0)
         }
 

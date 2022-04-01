@@ -6,6 +6,7 @@ import acrt.geometrymanagement.typed.GeometryOrganizerSome
 import acrt.geometrymanagement.untyped.PhotometryCreator
 import akka.actor.typed.ActorSystem
 import swiftvis2.raytrace.{Point, PointLight, RTColor}
+import scala.concurrent.ExecutionContext.global
 
 import scala.swing.{Alignment, Label, MainFrame, Swing}
 import scala.util.Random
@@ -18,8 +19,8 @@ object Main extends App {
   val numSims = 10
 
   //val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(1, 0, 0.2)), 4000))
-  val lights = List(//PhotonSource(PointLight(RTColor(1, 1, 1), Point(200, 200, 0)), 4000), PhotonSource(PointLight(RTColor(1, 1, 1), Point(-200, -200, 0)), 4000),
-                   PhotonSource(PointLight(RTColor(1, 0, 0), Point(200, -200, 100)), 400000), PhotonSource(PointLight(RTColor(0, 0, 1), Point(-200, 200, 100)), 400000))
+  val lights = List(PhotonSource(PointLight(RTColor(0, 0, 1), Point(10, 5, 10)), 40), /*PhotonSource(PointLight(RTColor(1, 1, 1), Point(-200, -200, 0)), 4000), */
+                   /*PhotonSource(PointLight(RTColor(1, 0, 0), Point(-10, 5, 10)), 400000)*//*, PhotonSource(PointLight(RTColor(0, 0, 1), Point(-200, 200, 100)), 40)*/)
   //val forward = Vect(0, 0, -1)
   //val up = Vect(0, 1, 0)
   //val viewLoc = Point(0.0, 0.0, numFiles*1e-5)
@@ -39,10 +40,10 @@ object Main extends App {
 
   val forward = right.cross(down) //could potentially be incorrectly negative if I got the handed-ness wrong
   val up = -down
-
-
-  val simpleGeom = GeometrySetup.randomGeometryActualArr(new Random, 1, -1, 1, -1, 1, -1, 0.1, 20)
-
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+  val b = 2
+  //val simpleGeom = GeometrySetup.randomGeometryActualArr(new Random, b, -b, b, -b, 1, -b, 0.1, 20)
+  val simpleGeom = GeometrySetup.hugeSphere()
 
   val organizer = system.create(GeometryOrganizerSome[PhotonCreator.PhotonCreatorIntersectResult](simpleGeom, PhotonCreator.PhotonCreatorIntersectResult.apply), "GeomOrganizer")
   val imageDrawer = system.create(ImageDrawer(lights, eye, forward, up, img), "ImageDrawer")

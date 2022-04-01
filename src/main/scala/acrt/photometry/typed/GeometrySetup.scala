@@ -26,7 +26,7 @@ object GeometrySetup {
 	}
 
 	def randomGeometryActualArr(rand:scala.util.Random, maxX:Double, minX:Double, maxY:Double, minY:Double, maxZ:Double, minZ:Double, maxRadius:Double, n:Int):Array[GeomSphere] = {
-		val rad = 3//(rand.nextDouble * 0.9 + 0.1) * (maxRadius)
+		val rad = (rand.nextDouble * 0.9 + 0.1) * (maxRadius)
 		def randGeometry():GeomSphere = {
 			val x = rand.nextDouble * (maxX - minX) + minX
 			val y = rand.nextDouble * (maxY - minY) + minY
@@ -48,7 +48,7 @@ object GeometrySetup {
 		val edgeCenterPoints = for(x <- xs; y <- ys; z <- zs) yield new Point (x, y, z)
 		val edgeSpheres = edgeCenterPoints.map(center => new GeomSphere(center, rad, p => RTColor(1, 1, 1, 1), p => 0.0))
 		val arr = Array.fill(n)(randGeometry())
-		/*arr*/ /*++ edgeSpheres*/ /*++*/ gridspheres.toArray
+		arr /*++ edgeSpheres*/ /*++*/ //gridspheres.toArray
 	}
 
 	//used with standardDownView to get a sphere that covers the entire image.

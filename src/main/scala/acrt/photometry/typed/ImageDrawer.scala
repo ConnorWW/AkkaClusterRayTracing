@@ -4,7 +4,8 @@ import acrt.geometrymanagement.typed.GeometryOrganizer
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import swiftvis2.raytrace.{Point, RTColor, RTImage, Vect}
-
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 object ImageDrawer {
   sealed trait Command
@@ -16,7 +17,7 @@ object ImageDrawer {
 
 
 
-  def apply(sources:List[PhotonSource], viewLoc:Point, forward: Vect, up: Vect, img: RTImage): Behavior[Command] = {
+  def apply(sources:List[PhotonSource], viewLoc:Point, forward: Vect, up: Vect, img: RTImage) (implicit ec: ExecutionContext): Behavior[Command] = {
     var howManyRays: Long = sources.map(m => m.numPhotons).sum
     val threads = 8
     var pixels: Array[Array[RTColor]] = null
@@ -37,14 +38,15 @@ object ImageDrawer {
           println("Starting!")
           pixels = startPixels
           context.log.info(s"threads: $threads, |sources|: ${sources.length}")
-          for(c <- 1 to threads; light <- sources) {
+          for(/*c <- 1 to threads;*/ light <- sources) {
+            context.log.info("In the future!")
             val id = light.numPhotons + scala.util.Random.nextLong()
-            val child: ActorRef[PhotonCreator.PhotonCreatorCommand] = context.spawn(PhotonCreator(xmin, xmax, ymin, ymax, light, viewLoc, forward, up, img, context.self), s"PhotonSender$c,$id")
+            val child: ActorRef[PhotonCreator.PhotonCreatorCommand] = context.spawn(PhotonCreator(xmin, xmax, ymin, ymax, light, viewLoc, forward, up, img, context.self), s"PhotonCreator,$id")
             context.log.info("Making call to render")
             child ! PhotonCreator.Render
           }
         } case UpdateColor(x, y, col) => {
-          context.log.info(s"Updating color $x, $y, $col")
+          //context.log.info(s"Updating color $x, $y, $col")
           changedPixels += 1
           howManyRays -= 1
 
