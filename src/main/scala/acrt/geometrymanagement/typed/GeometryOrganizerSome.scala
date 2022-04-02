@@ -6,7 +6,9 @@ import akka.actor.typed.scaladsl.Behaviors
 import acrt.photometry.typed.ImageDrawer.Bounds
 import swiftvis2.raytrace.ListScene
 import acrt.photometry.typed.PhotonCreator.PhotonCreatorIntersectResult
-import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBoundsBuilder}
+import swiftvis2.raytrace.{Geometry, IntersectData, KDTreeGeometry, SphereBoundsBuilder, Box}
+import swiftvis2.raytrace.BoundingBox.mutualBox
+ import swiftvis2.raytrace.BoundingBox
  
 object GeometryOrganizerSome {
   import GeometryOrganizer._
@@ -16,7 +18,7 @@ object GeometryOrganizerSome {
     
     val ymin = simpleGeom.minBy(_.boundingSphere.center.y).boundingSphere.center.y
     val ymax = simpleGeom.maxBy(_.boundingSphere.center.y).boundingSphere.center.y
-  
+    context.log.info(s"simpleGeom size: ${simpleGeom.size}")
     val geomSeqs = simpleGeom.groupBy(g => ((g.boundingSphere.center.y - ymin) / (ymax-ymin) * numTotalManagers).toInt min (numTotalManagers - 1))
     val geoms = geomSeqs.map { case (n, gs) => n -> new KDTreeGeometry(gs, builder = SphereBoundsBuilder) }
     println("Printing Geom n values from GeomOrganizerSome")
@@ -30,12 +32,12 @@ object GeometryOrganizerSome {
     Behaviors.receiveMessage { message =>
       message match {
         case CastRay(rec, k, r) => {
-          //there is only one geom, none of the rays are hitting it
           val intersects = geoms.filter(_._2.boundingSphere.intersectParam(r) != None)
-          // context.log.info(s"geoms size: ${geoms.size}")
+          //context.log.info(s"geoms size: ${geoms.size}")
+          //context.log.info("geom: " + geoms.head.toString())
           buffMap += (k -> new collection.mutable.ArrayBuffer[Option[IntersectData]])
           numManagersMap += (k -> intersects.size)
-          // context.log.info(s"intersects is empty: ${intersects.isEmpty}")
+          context.log.info(s"intersects is empty: ${intersects.isEmpty}")
           //intersects is empty every time
           if (intersects.isEmpty) rec ! intersectResultMaker(k, None)
           else for(i <- intersects) {
@@ -46,7 +48,10 @@ object GeometryOrganizerSome {
         case GetBounds(imgDrawer) => {
           //TODO: FIX
           //new ListScene(simpleGeom: _*).boundingBox.max
-          imgDrawer ! Bounds(-1.0, 1.0, -1.0, 1.0)
+          val box = simpleGeom.foldLeft(simpleGeom.head.boundingBox){(first: Box, second: Geometry) => BoundingBox.mutualBox(first, second.boundingBox)}
+          val max = box.max
+          val min = box.min
+          imgDrawer ! Bounds(min.x, max.x, min.y, max.y, min.z, max.z)
         }
 
         case RecID(rec, k, id) => {
@@ -60,7 +65,7 @@ object GeometryOrganizerSome {
             val editedBuff = buffK.filter(_ != None)
 
             if(editedBuff.isEmpty){
-              // context.log.info(s"Sent empty intersect result $k to ${rec.path.name}")
+              context.log.info(s"Sent empty intersect result $k to ${rec.path.name}")
               rec ! intersectResultMaker(k, None)
             } else {
               var lowest: IntersectData = editedBuff.head match {

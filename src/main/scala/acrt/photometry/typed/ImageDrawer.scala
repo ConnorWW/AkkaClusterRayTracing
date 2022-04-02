@@ -12,7 +12,7 @@ object ImageDrawer {
   case object MoreRays extends ImageDrawer.Command
   case class Start(startPixels: Array[Array[RTColor]]) extends Command
   case class UpdateColor(x: Int, y: Int, col: RTColor) extends Command
-  case class Bounds(xmin: Double, xmax: Double, ymin: Double, ymax: Double) extends Command
+  case class Bounds(xmin: Double, xmax: Double, ymin: Double, ymax: Double, zmin:Double, zmax:Double) extends Command
   case class AcquireBounds(org: ActorRef[GeometryOrganizer.Command[PhotonCreator.PhotonCreatorIntersectResult]]) extends Command
 
 
@@ -22,10 +22,12 @@ object ImageDrawer {
     val threads = 8
     var pixels: Array[Array[RTColor]] = null
 
-    var xmin = 0.0
-    var xmax = 100.0
-    var ymin = 0.0
-    var ymax = 100.0
+    var xmin = -1.0
+    var xmax = 1.0
+    var ymin = -1.0
+    var ymax = 1.0
+    var zmin = -1.0
+    var zmax = 1.0
 
     var changedPixels = 0
 
@@ -39,9 +41,9 @@ object ImageDrawer {
           pixels = startPixels
           context.log.info(s"threads: $threads, |sources|: ${sources.length}")
           for(/*c <- 1 to threads;*/ light <- sources) {
-            context.log.info("In the future!")
+            context.log.info(s"xmin: $xmin xmax: $xmax ymin $ymin ymax $ymax zmin $zmin zmax $zmax")
             val id = light.numPhotons + scala.util.Random.nextLong()
-            val child: ActorRef[PhotonCreator.PhotonCreatorCommand] = context.spawn(PhotonCreator(xmin, xmax, ymin, ymax, light, viewLoc, forward, up, img, context.self), s"PhotonCreator,$id")
+            val child: ActorRef[PhotonCreator.PhotonCreatorCommand] = context.spawn(PhotonCreator(xmin, xmax, ymin, ymax, zmin, zmax, light, viewLoc, forward, up, img, context.self), s"PhotonCreator,$id")
             context.log.info("Making call to render")
             child ! PhotonCreator.Render
           }
@@ -61,11 +63,13 @@ object ImageDrawer {
 
           if(howManyRays <= 0) println("All rays drawn.")
 
-        } case Bounds(bxmin, bxmax, bymin, bymax) => {
+        } case Bounds(bxmin, bxmax, bymin, bymax, bzmin, bzmax) => {
           xmin = bxmin
           xmax = bxmax
           ymin = bymin
           ymax = bymax
+          zmin = bzmin
+          zmax = bzmax
           println(s"smin: $xmin, xmax: $xmax, ymin: $ymin, ymax: $ymax")
           val startPixels = Array.fill(img.width, img.height)(RTColor.Black)
           context.self ! ImageDrawer.Start(startPixels)

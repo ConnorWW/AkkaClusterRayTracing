@@ -11,7 +11,7 @@ object PhotonCreator {
   case class SetColor(x: Int, y: Int, col: RTColor) extends PhotonCreatorCommand
   case class PhotonCreatorIntersectResult(k: Long, intD: Option[IntersectData]) extends PhotonCreatorCommand
 
-  def apply(xmin: Double, xmax: Double, ymin: Double, ymax: Double, source: PhotonSource,
+  def apply(xmin: Double, xmax: Double, ymin: Double, ymax: Double, zmin: Double, zmax: Double, source: PhotonSource,
             viewLoc: Point, forward: Vect, up: Vect, image: RTImage, parent: ActorRef[ImageDrawer.Command]):Behavior[PhotonCreatorCommand] = {
     Behaviors.setup { context => 
       val right = forward.cross(up)
@@ -47,7 +47,7 @@ object PhotonCreator {
                 Point(
                   xmin + math.random() * (xmax - xmin),
                   ymin + math.random() * (ymax - ymin),
-                  /*0.0*/math.random() * 2 //zmax - zmin but we don't have those here
+                  zmin + math.random() * (zmax - zmin), 
                 )
               )
               context.log.info(s"Casting $ray")
