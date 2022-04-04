@@ -125,7 +125,7 @@ object GeometrySetup {
 		val cellWidth = 1e-5
   		val distanceUp = 1e-5
   		val viewSize = 1e-5
-  		val numSims = 6
+  		val numSims = 4
   		val firstXOffset = cellWidth * (numSims - 1)
 		(Point(0, -firstXOffset-2*cellWidth, distanceUp), Point(-viewSize, -firstXOffset-2*cellWidth+viewSize, distanceUp + viewSize), Vect(2 * viewSize, 0, 0), Vect(0, 0, -2 * viewSize))
 	}

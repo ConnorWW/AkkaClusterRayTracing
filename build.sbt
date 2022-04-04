@@ -17,7 +17,7 @@ assemblyMergeStrategy in assembly := {
 
 mainClass in (Compile, packageBin) := Some("acrt.raytracing.untyped.Main")
 
-mainClass in (Compile, run) := Some("acrt.raytracing.untyped.Main")
+mainClass in (Compile, run) := Some("acrt.photometry.typed.Main")
 
 libraryDependencies ++= Seq(
 	"com.typesafe.akka" %% "akka-actor" % "2.6.9",
