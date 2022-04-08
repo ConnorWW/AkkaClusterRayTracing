@@ -31,12 +31,12 @@ object Scatterer {
               if (scatter > 0.0) {
                 val fracForward = inRay dot forward
                 //context.log.info(s"inRay = $inRay, fracForward = $fracForward")
-                val px = ((inRay.dot(right) / fracForward / 0.707 + 1.0) * width / 2).toInt
-                val py = ((-inRay.dot(up) / fracForward / 0.707 + 1.0) * height / 2).toInt
+                // val px = ((inRay.dot(right) / fracForward / 0.707 + 1.0) * width / 2).toInt
+                // val py = ((-inRay.dot(up) / fracForward / 0.707 + 1.0) * height / 2).toInt
                 //changed .707 to 1.0 -> generated the yellow-pixel image. Hasn't generated an image since.
-                // val px = ((inRay.dot(right) / fracForward / 1.0 + 1.0) * width / 2).toInt
-                // val py = ((-inRay.dot(up) / fracForward / 1.0 + 1.0) * height / 2).toInt
-                context.log.info(s"Pixel location and color calculated. px: $px py: $py width: $width height: $height")
+                val px = ((inRay.dot(right) / fracForward / 1.0 + 1.0) * width / 2).toInt
+                val py = ((-inRay.dot(up) / fracForward / 1.0 + 1.0) * height / 2).toInt
+                // context.log.info(s"Pixel location and color calculated. px: $px py: $py width: $width height: $height")
                 if (px >= 0 && px < width && py >= 0 && py < height) {
                   //context.log.info("color set")
                   parent ! PhotonCreator.SetColor(px, py, source.light.col * id.color * scatter)

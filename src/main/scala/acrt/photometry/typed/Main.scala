@@ -19,7 +19,7 @@ object Main extends App {
   val cellWidth = 1e-5
   val distanceUp = 1e-5
   val viewSize = 1e-5
-  val numSims = 6
+  val numSims = 8
   //val carURL = new URL("http://www.cs.trinity.edu/~mlewis/Rings/AMNS-Moonlets/Moonlet4/CartAndRad.6029.bin")
   //val particles = CartAndRad.readStream(carURL.openStream).map(p => GeomSphere(Point(p.x, p.y, p.z), p.rad, _ => new RTColor(1, 1, 1, 1), _ => 0.0))
   //val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(1, 0, 0.2)), 4000))

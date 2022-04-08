@@ -39,12 +39,12 @@ object ImageDrawer {
         } case Start(startPixels) => {
           println("Starting!")
           pixels = startPixels
-          context.log.info(s"threads: $threads, |sources|: ${sources.length}")
+          // context.log.info(s"threads: $threads, |sources|: ${sources.length}")
           for(/*c <- 1 to threads;*/ light <- sources) {
-            context.log.info(s"xmin: $xmin xmax: $xmax ymin $ymin ymax $ymax zmin $zmin zmax $zmax")
+            // context.log.info(s"xmin: $xmin xmax: $xmax ymin $ymin ymax $ymax zmin $zmin zmax $zmax")
             val id = light.numPhotons + scala.util.Random.nextLong()
             val child: ActorRef[PhotonCreator.PhotonCreatorCommand] = context.spawn(PhotonCreator(xmin, xmax, ymin, ymax, zmin, zmax, light, viewLoc, forward, up, img, context.self), s"PhotonCreator,$id")
-            context.log.info("Making call to render")
+            // context.log.info("Making call to render")
             child ! PhotonCreator.Render
           }
         } case UpdateColor(x, y, col) => {

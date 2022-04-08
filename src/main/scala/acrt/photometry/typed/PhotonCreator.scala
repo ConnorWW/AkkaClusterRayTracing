@@ -34,14 +34,14 @@ object PhotonCreator {
             oid.map { iData:IntersectData =>
               //context.log.info("Creating newScatterer")
               createdScatterers += 1
-              context.log.info(s"createdScatterers: $createdScatterers")
+              // context.log.info(s"createdScatterers: $createdScatterers")
               val newScatterer = context.spawn(Scatterer(source, viewLoc, forward, up, iData, image.width, image.height, rays(k).dir, context.self), s"Scatterer$k")
               //println(s"Ray $k was Scattered")
             }
           }
           case Render => {
             for (_ <- 0L until source.numPhotons) {
-              context.log.info(s"xmin: $xmin xmax: $xmax ymin: $ymin ymax: $ymax ")
+              // context.log.info(s"xmin: $xmin xmax: $xmax ymin: $ymin ymax: $ymax ")
               val ray = Ray(
                 source.light.point,
                 Point(
@@ -50,7 +50,7 @@ object PhotonCreator {
                   zmin + math.random() * (zmax - zmin), 
                 )
               )
-              context.log.info(s"Casting $ray")
+              // context.log.info(s"Casting $ray")
               val k = scala.util.Random.nextLong()
               organizer ! GeometryOrganizer.CastRay(context.self, k, ray)
               rays += (k -> ray)

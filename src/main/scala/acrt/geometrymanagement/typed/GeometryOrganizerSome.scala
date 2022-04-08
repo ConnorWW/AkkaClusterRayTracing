@@ -36,12 +36,13 @@ object GeometryOrganizerSome {
 
     val n = math.sqrt(numFiles.toDouble / 10.0).ceil.toInt
 
-    val offsets = for(x <- 0 until 10 * n; y <- 0 until n) yield {
+    val offsets = for(y <- 0 until n; x <- 0 until 10 * n) yield {
       (x * 2.0e-5 - (10 * n - 1) * 1e-5, y * 2e-4 - (n - 1) * 1e-4)
     }
+    println(offsets)
 
     def giveOffsets(arr: Seq[String], offsetArray: IndexedSeq[(Double, Double)]): Map[String, (Double, Double)] = {
-        arr.map(t => (t, offsetArray(arr.indexOf(t)))).toMap
+        arr.zipWithIndex.map { case (t, i) => (t, offsetArray(i)) }.toMap
     }
     //val ymin = simpleGeom.minBy(_.boundingSphere.center.y).boundingSphere.center.y
     //val ymax = simpleGeom.maxBy(_.boundingSphere.center.y).boundingSphere.center.y
@@ -76,7 +77,7 @@ object GeometryOrganizerSome {
           //context.log.info("geom: " + geoms.head.toString())
           buffMap += (k -> new collection.mutable.ArrayBuffer[Option[IntersectData]])
           numManagersMap += (k -> intersects.size)
-          context.log.info(s"intersects is empty: ${intersects.isEmpty}")
+          // context.log.info(s"intersects is empty: ${intersects.isEmpty}")
           //intersects is empty every time
           if (intersects.isEmpty) rec ! intersectResultMaker(k, None)
           else for(i <- intersects) {
@@ -104,7 +105,7 @@ object GeometryOrganizerSome {
             val editedBuff = buffK.filter(_ != None)
 
             if(editedBuff.isEmpty){
-              context.log.info(s"Sent empty intersect result $k to ${rec.path.name}")
+              // context.log.info(s"Sent empty intersect result $k to ${rec.path.name}")
               rec ! intersectResultMaker(k, None)
             } else {
               var lowest: IntersectData = editedBuff.head match {
