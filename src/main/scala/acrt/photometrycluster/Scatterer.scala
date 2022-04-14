@@ -1,8 +1,10 @@
-package acrt.photometry.typed
+package acrt.photometrycluster
 
-import acrt.geometrymanagement.typed.GeometryOrganizer
+import geometrymanagement.GeometryOrganizer
+import acrt.raytracing.typed.PixelHandler
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import photometry.ScatterGeometry
 import swiftvis2.raytrace.{IntersectData, Point, Ray, Vect}
 
 object Scatterer {

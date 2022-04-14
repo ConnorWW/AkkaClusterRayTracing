@@ -1,9 +1,9 @@
-package acrt.photometry.typed
+package acrt.photometrycluster
 
 import java.awt.image.BufferedImage
 
-import acrt.geometrymanagement.typed.GeometryOrganizerSome
-import acrt.geometrymanagement.untyped.PhotometryCreator
+import acrt.photometrycluster.geometrymanagement.GeometryOrganizerSome
+import acrt.photometrycluster.geometrymanagement.PhotometryCreator
 import akka.actor.typed.ActorSystem
 import swiftvis2.raytrace.{Point, PointLight, RTColor, _}
 
