@@ -14,10 +14,10 @@ object ImageDrawer {
   case class UpdateColor(x: Int, y: Int, col: RTColor) extends Command
   case class Bounds(xmin: Double, xmax: Double, ymin: Double, ymax: Double, zmin:Double, zmax:Double) extends Command
   case class AcquireBounds(org: ActorRef[GeometryOrganizer.Command[PhotonCreator.PhotonCreatorIntersectResult]]) extends Command
+  case object RayBlocked extends Command
 
 
-
-  def apply(sources:List[PhotonSource], viewLoc:Point, forward: Vect, up: Vect, img: RTImage) (implicit ec: ExecutionContext): Behavior[Command] = {
+  def apply(sources:List[PhotonSource], viewLoc:Point, forward: Vect, up: Vect, img: RTImage, start:Long) (implicit ec: ExecutionContext): Behavior[Command] = {
     var howManyRays: Long = sources.map(m => m.numPhotons).sum
     val threads = 8
     var pixels: Array[Array[RTColor]] = null
@@ -47,6 +47,9 @@ object ImageDrawer {
             // context.log.info("Making call to render")
             child ! PhotonCreator.Render
           }
+        } case RayBlocked => {
+            howManyRays -= 1
+            if(howManyRays % 100 == 0) context.log.info(s"$howManyRays rays left at ${(System.nanoTime() - start) *1e-9} seconds")
         } case UpdateColor(x, y, col) => {
           //context.log.info(s"Updating color $x, $y, $col")
           changedPixels += 1
@@ -60,8 +63,8 @@ object ImageDrawer {
             writeToImage(pixels, img)
             changedPixels = 0
           }
-
-          if(howManyRays <= 0) println("All rays drawn.")
+          context.log.info(s"$howManyRays rays left at ${(System.nanoTime() - start) *1e-9} seconds")
+          if(howManyRays <= 0) context.log.info(s"All rays drawn in ${(System.nanoTime() - start) *1e-9} seconds")
 
         } case Bounds(bxmin, bxmax, bymin, bymax, bzmin, bzmax) => {
           xmin = bxmin

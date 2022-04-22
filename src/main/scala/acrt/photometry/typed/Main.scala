@@ -19,11 +19,11 @@ object Main extends App {
   val cellWidth = 1e-5
   val distanceUp = 1e-5
   val viewSize = 1e-5
-  val numSims = 8
+  val numSims = 1
   //val carURL = new URL("http://www.cs.trinity.edu/~mlewis/Rings/AMNS-Moonlets/Moonlet4/CartAndRad.6029.bin")
   //val particles = CartAndRad.readStream(carURL.openStream).map(p => GeomSphere(Point(p.x, p.y, p.z), p.rad, _ => new RTColor(1, 1, 1, 1), _ => 0.0))
   //val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(1, 0, 0.2)), 4000))
-  val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(1, 0, .2)), 1600000)/*, PhotonSource(PointLight(RTColor(1, 0, 0), Point(-1e-1, 0, 1e-2)), 40000*/)
+  val lights = List(PhotonSource(PointLight(RTColor(1, 1, 1), Point(1, 0, .2)), 100000)/*, PhotonSource(PointLight(RTColor(1, 0, 0), Point(-1e-1, 0, 1e-2)), 40000*/)
                    /*PhotonSource(PointLight(RTColor(1, 0, 0), Point(-10, 5, 10)), 400000)*//*, PhotonSource(PointLight(RTColor(0, 0, 1), Point(-200, 200, 100)), 40)*/
   // val forward = Vect(0, 0, -1)
   // val up = Vect(0, 1, 0)
@@ -49,7 +49,7 @@ object Main extends App {
   val pc = new PhotometryCreator
 
   val system = ActorSystem
-
+  val start = System.nanoTime()
 
   //val view = GeometrySetup.standardDownView()
   //val view = GeometrySetup.topView(numSims)
@@ -61,10 +61,10 @@ object Main extends App {
   //val b = 2
   //val simpleGeom = GeometrySetup.randomGeometryActualArr(new Random, b, -b, b, -b, 1, -b, 0.1, 20)
   //val simpleGeom = GeometrySetup.hugeSphere()
-
+  
   val organizer = system.create(GeometryOrganizerSome[PhotonCreator.PhotonCreatorIntersectResult](numSims, pc, PhotonCreator.PhotonCreatorIntersectResult.apply), "GeomOrganizer")
   //val imageDrawer = system.create(ImageDrawer(lights, eye, forward, up, img), "ImageDrawer")
-  val imageDrawer = system.create(ImageDrawer(lights, viewLoc, realForward, realUp, img), "ImageDrawer")
+  val imageDrawer = system.create(ImageDrawer(lights, viewLoc, realForward, realUp, img, start), "ImageDrawer")
   //val imageDrawer = system.create(ImageDrawer(lights, viewLoc, realForward, realUp, img), "ImageDrawer")
 
   imageDrawer ! ImageDrawer.AcquireBounds(organizer)
@@ -83,7 +83,7 @@ object Main extends App {
     val delay = System.nanoTime() - last
     if (delay >= (.5 * 1e9)) {
       frame.repaint()
-      println("Repainting")
+      //println("Repainting")
       last = System.nanoTime()
     }
   }

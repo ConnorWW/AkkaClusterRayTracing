@@ -40,10 +40,11 @@ object Scatterer {
                 if (px >= 0 && px < width && py >= 0 && py < height) {
                   //context.log.info("color set")
                   parent ! PhotonCreator.SetColor(px, py, source.light.col * id.color * scatter)
-                }
-              }
+                } else Main.imageDrawer ! ImageDrawer.RayBlocked
+              } else Main.imageDrawer ! ImageDrawer.RayBlocked
             } else {
-              context.log.info("Ray was blocked in Scatterer at time: " + intD.get.time)
+              Main.imageDrawer ! ImageDrawer.RayBlocked
+              //context.log.info("Ray was blocked in Scatterer at time: " + intD.get.time)
             }
             Behaviors.same
           }
